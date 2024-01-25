@@ -1,0 +1,13 @@
+ORG_NAME,MY ORG
+ORG_UNIT,My Unit
+DOMAIN_NAME,something.domain.com
+STATE,New York
+HOSTNAME1,ldap-host1
+HOST1IP,192.168.10.1
+HOSTNAME2,ldap-host2
+HOST2IP,192.168.10.2
+LDAP_ADMIN_PASSWD,admin_pass
+LDAP_CONFIG_PASSWD,config_pass
+DC1,com
+DC2,domain
+DC3,something (this line is optional and can be removed if you don't have a third domain component)
