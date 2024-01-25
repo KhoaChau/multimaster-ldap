@@ -19,11 +19,10 @@ using docker image: osixia/openldap-backup:1.5.0
 
 ## ToDo:
 
-##- Allow user to set the default lam password in the template.
-
-- Screenshots of lam password change.
-- Make this README prettier.
-- Testing.
+* Allow user to set the default lam password in the template.
+* Screenshots of lam password change.
+* Make this README prettier.
+* Testing.
 
 ## Steps:
 
