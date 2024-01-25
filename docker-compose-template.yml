@@ -1,0 +1,69 @@
+version: '2'
+services:
+  openldap:
+    image: osixia/openldap-backup:1.5.0
+    restart: unless-stopped
+    container_name: openldap
+    environment:
+      LDAP_LOG_LEVEL: "256"
+      LDAP_ORGANISATION: "ORG_NAME"
+      LDAP_DOMAIN: "DOMAIN_NAME"
+      LDAP_BASE_DN: ""
+      LDAP_ADMIN_PASSWORD: "LDAP_ADMIN_PASSWD"
+      LDAP_CONFIG_PASSWORD: "LDAP_CONFIG_PASSWD"
+      LDAP_READONLY_USER: "false"
+      #LDAP_READONLY_USER_USERNAME: "readonly"
+      #LDAP_READONLY_USER_PASSWORD: "readonly"
+      LDAP_RFC2307BIS_SCHEMA: "false"
+      LDAP_BACKEND: "mdb"
+      LDAP_TLS: "true"
+      LDAP_TLS_CRT_FILENAME: "HOSTNAME1.DOMAIN_NAME.crt"
+      LDAP_TLS_KEY_FILENAME: "HOSTNAME1.DOMAIN_NAME.key"
+      LDAP_TLS_DH_PARAM_FILENAME: "dhparam.pem"
+      LDAP_TLS_CA_CRT_FILENAME: "rootCA.crt"
+      LDAP_TLS_ENFORCE: "false"
+      #more secure
+      #LDAP_TLS_CIPHER_SUITE: "SECURE256:-VERS-SSL3.0"
+      #LDAP_TLS_PROTOCOL_MIN: "3.1"
+
+      LDAP_TLS_VERIFY_CLIENT: "never"
+      LDAP_TLS_PROTOCOL_MIN: "1.2"
+      LDAP_TLS_CIPHER_SUITE: "NORMAL:SECURE128:-VERS-SSL3.0:+VERS-TLS1.2"
+
+      LDAP_REPLICATION: "true"
+      #LDAP_REPLICATION_CONFIG_SYNCPROV: 'binddn="cn=admin,cn=config" bindmethod=simple credentials="$$LDAP_CONFIG_PASSWORD" searchbase="cn=config" type=refreshAndPersist retry="60 +" timeout=1 starttls=critical'
+      #LDAP_REPLICATION_DB_SYNCPROV: 'binddn="cn=admin,$$LDAP_BASE_DN" bindmethod=simple credentials="$$LDAP_ADMIN_PASSWORD" searchbase="$$LDAP_BASE_DN" type=refreshAndPersist interval=00:00:00:10 retry="60 +" timeout=1 starttls=critical'
+      LDAP_REPLICATION_HOSTS: "#PYTHON2BASH:['ldap://HOSTNAME1.DOMAIN_NAME','ldap://HOSTNAME2.DOMAIN_NAME']"
+      KEEP_EXISTING_CONFIG: "false"
+      LDAP_REMOVE_CONFIG_AFTER_SETUP: "true"
+      LDAP_SSL_HELPER_PREFIX: "ldap"
+    tty: true
+    stdin_open: true
+    volumes:
+      - /opt/ldap/database:/var/lib/ldap
+      - /opt/ldap/config:/etc/ldap/slapd.d
+      - /opt/ldap/certs:/container/service/slapd/assets/certs/
+      - /opt/ldap/certs:/usr/local/share/ca-certificates/
+      - /opt/ldap/backup:/data/backup
+    ports:
+      - "389:389"
+      - "636:636"
+    # For replication to work correctly, domainname and hostname must be
+    # set correctly so that "hostname"."domainname" equates to the
+    # fully-qualified domain name for the host.
+    domainname: "DOMAIN_NAME"
+    hostname: "HOSTNAME1.DOMAIN_NAME"
+    extra_hosts:
+      - "HOSTNAME1.DOMAIN_NAME:HOST1IP"
+      - "HOSTNAME2.DOMAIN_NAME:HOST2IP"
+
+  lam:
+    restart: unless-stopped
+    container_name: lam
+    build: .
+    ports:
+      - "8888:80"
+      - "8443:443"
+    volumes:
+      - /opt/ldap/lam/config:/etc/ldap-account-manager
+      - /opt/ldap/lam/data:/var/lib/ldap-account-manager
